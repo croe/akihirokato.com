@@ -13,22 +13,21 @@ export const client =
     : null
 
 // 型定義
+export type MicroCMSImage = {
+  url: string
+  width: number
+  height: number
+}
+
 export type Work = {
   id: string
   title: string
   slug: string
   year: string
-  thumbnail: {
-    url: string
-    width: number
-    height: number
-  }
+  thumbnail: MicroCMSImage
   description?: string
-  image?: {
-    url: string
-    width: number
-    height: number
-  }
+  image?: MicroCMSImage
+  images?: MicroCMSImage[]
 }
 
 export type About = {

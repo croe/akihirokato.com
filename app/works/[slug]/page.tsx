@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { getWorkBySlug, getWorks } from "@/lib/microcms"
+import { ImageLightbox } from "@/components/image-lightbox"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -17,9 +18,14 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params
   const work = await getWorkBySlug(slug)
   if (!work) return { title: "Work Not Found" }
+
+  const plainDescription = work.description
+    ? work.description.replace(/<[^>]*>/g, "").slice(0, 160)
+    : undefined
+
   return {
     title: `${work.title} | Akihiro Kato`,
-    description: work.description,
+    description: plainDescription,
   }
 }
 
@@ -31,7 +37,7 @@ export default async function WorkDetailPage({ params }: Props) {
     notFound()
   }
 
-  const displayImage = work.image || work.thumbnail
+  const displayImageUrl = work.image?.url || work.thumbnail?.url || "/placeholder.svg"
 
   return (
     <main className="pt-24 pb-16">
@@ -52,7 +58,7 @@ export default async function WorkDetailPage({ params }: Props) {
 
           <div className="aspect-video relative overflow-hidden bg-muted rounded-sm">
             <Image
-              src={displayImage.url || "/placeholder.svg"}
+              src={displayImageUrl}
               alt={work.title}
               fill
               className="object-cover"
@@ -62,9 +68,14 @@ export default async function WorkDetailPage({ params }: Props) {
           </div>
 
           {work.description && (
-            <div className="prose prose-neutral dark:prose-invert max-w-none">
-              <p className="text-foreground/80 leading-relaxed whitespace-pre-wrap">{work.description}</p>
-            </div>
+            <div
+              className="prose prose-neutral dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: work.description }}
+            />
+          )}
+
+          {work.images && work.images.length > 0 && (
+            <ImageLightbox images={work.images} title={work.title} />
           )}
         </article>
       </div>

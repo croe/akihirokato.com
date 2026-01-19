@@ -7,12 +7,14 @@ type WorkCardProps = {
 }
 
 export function WorkCard({ work }: WorkCardProps) {
+  const thumbnailUrl = work.thumbnail?.url || work.image?.url || "/placeholder.svg"
+
   return (
     <Link href={`/works/${work.slug}`} className="group block">
       <article className="space-y-3">
         <div className="aspect-[4/3] relative overflow-hidden bg-muted rounded-sm">
           <Image
-            src={work.thumbnail.url || "/placeholder.svg"}
+            src={thumbnailUrl}
             alt={work.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"

@@ -14,8 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useI18n } from "@/lib/i18n"
 
 export default function ContactPage() {
+  const { t } = useI18n()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -64,10 +66,10 @@ export default function ContactPage() {
     return (
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-6 max-w-lg">
-          <h1 className="text-2xl font-medium mb-8">Contact</h1>
+          <h1 className="text-2xl font-medium mb-8">{t.contact}</h1>
           <div className="text-center py-12 space-y-4">
-            <p className="text-foreground">お問い合わせありがとうございます。</p>
-            <p className="text-muted-foreground text-sm">内容を確認次第、担当者よりご連絡させていただきます。</p>
+            <p className="text-foreground">{t.thankYou}</p>
+            <p className="text-muted-foreground text-sm">{t.thankYouMessage}</p>
           </div>
         </div>
       </main>
@@ -77,7 +79,7 @@ export default function ContactPage() {
   return (
     <main className="pt-24 pb-16">
       <div className="container mx-auto px-6 max-w-lg">
-        <h1 className="text-2xl font-medium mb-8">Contact</h1>
+        <h1 className="text-2xl font-medium mb-8">{t.contact}</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* ハニーポット（非表示） */}
@@ -91,47 +93,47 @@ export default function ContactPage() {
 
           <div className="space-y-2">
             <Label htmlFor="name">
-              お名前 <span className="text-destructive">*</span>
+              {t.name} <span className="text-destructive">{t.required}</span>
             </Label>
-            <Input id="name" name="name" type="text" required placeholder="山田 太郎" />
+            <Input id="name" name="name" type="text" required placeholder="John Doe" />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email">
-              メールアドレス <span className="text-destructive">*</span>
+              {t.email} <span className="text-destructive">{t.required}</span>
             </Label>
             <Input id="email" name="email" type="email" required placeholder="example@email.com" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="company">会社名・団体名</Label>
-            <Input id="company" name="company" type="text" placeholder="株式会社〇〇" />
+            <Label htmlFor="company">{t.company}</Label>
+            <Input id="company" name="company" type="text" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">電話番号</Label>
-            <Input id="phone" name="phone" type="tel" placeholder="03-1234-5678" />
+            <Label htmlFor="phone">{t.phone}</Label>
+            <Input id="phone" name="phone" type="tel" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="service">ご希望のサービス</Label>
+            <Label htmlFor="service">{t.service}</Label>
             <Select value={service} onValueChange={setService}>
               <SelectTrigger>
-                <SelectValue placeholder="選択してください" />
+                <SelectValue placeholder={t.servicePlaceholder} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="web-development">Web開発</SelectItem>
-                <SelectItem value="consulting">コンサルティング</SelectItem>
-                <SelectItem value="other">その他</SelectItem>
+                <SelectItem value="web-development">{t.serviceWebDev}</SelectItem>
+                <SelectItem value="consulting">{t.serviceConsulting}</SelectItem>
+                <SelectItem value="other">{t.serviceOther}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="message">
-              お問い合わせ内容 <span className="text-destructive">*</span>
+              {t.message} <span className="text-destructive">{t.required}</span>
             </Label>
-            <Textarea id="message" name="message" required placeholder="お問い合わせ内容をご記入ください" rows={6} />
+            <Textarea id="message" name="message" required placeholder={t.messagePlaceholder} rows={6} />
           </div>
 
           {error && (
@@ -139,7 +141,7 @@ export default function ContactPage() {
           )}
 
           <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "送信中..." : "送信する"}
+            {isSubmitting ? t.submitting : t.submit}
           </Button>
         </form>
       </div>

@@ -22,29 +22,69 @@ export type MicroCMSImage = {
 export type Work = {
   id: string
   title: string
+  titleEn?: string
   slug: string
   year: string
   thumbnail: MicroCMSImage
   description?: string
+  descriptionEn?: string
   image?: MicroCMSImage
   images?: MicroCMSImage[]
+  videoUrl?: string
+}
+
+export type HistoryItem = {
+  fieldId: string
+  startDate: string // ISO 8601形式 (例: "2024-04-01T00:00:00.000Z")
+  endDate?: string // 終了日（進行中の場合は空）
+  title: string
+  titleEn?: string
+}
+
+export type ExhibitionItem = {
+  fieldId: string
+  startDate: string
+  endDate?: string
+  title: string
+  titleEn?: string
+  venue?: string
+  venueEn?: string
+  location?: string
+  locationEn?: string
+}
+
+export type SocialLink = {
+  fieldId: string
+  platformId: string // "x", "instagram", etc.
+  url: string
+}
+
+export type Activity = {
+  id: string
+  title: string
+  titleEn?: string
+  slug: string
+  date: string
+  content?: string
+  contentEn?: string
 }
 
 export type About = {
   name: string
-  nameJa?: string
+  nameEn?: string
   bio: string
+  bioEn?: string
   profileImage?: {
     url: string
     width: number
     height: number
   }
   email?: string
-  social?: {
-    fieldId: string
-    platform: string
-    url: string
-  }[]
+  social?: SocialLink[]
+  education?: HistoryItem[]
+  awards?: HistoryItem[]
+  exhibitions?: ExhibitionItem[]
+  grants?: HistoryItem[]
 }
 
 export type MicroCMSListResponse<T> = {
@@ -144,5 +184,79 @@ export async function getAbout(): Promise<About | null> {
   } catch (error) {
     console.log("[v0] MicroCMS about fetch error:", error)
     return null
+  }
+}
+
+const sampleActivities: Activity[] = [
+  {
+    id: "1",
+    title: "新しいプロジェクトを開始しました",
+    titleEn: "Started a new project",
+    slug: "new-project-2024",
+    date: "2024-03-15",
+    content: "<p>新しいWebデザインプロジェクトを開始しました。</p>",
+    contentEn: "<p>Started a new web design project.</p>",
+  },
+  {
+    id: "2",
+    title: "デザインアワードを受賞",
+    titleEn: "Won design award",
+    slug: "design-award-2024",
+    date: "2024-02-01",
+    content: "<p>国際デザインアワードで入賞しました。</p>",
+    contentEn: "<p>Won an international design award.</p>",
+  },
+]
+
+// Activities取得
+export async function getActivities(
+  limit: number = 10,
+  offset: number = 0
+): Promise<{ contents: Activity[]; totalCount: number }> {
+  if (!client) {
+    console.log("[v0] MicroCMS not configured, using sample data")
+    const start = offset
+    const end = offset + limit
+    return {
+      contents: sampleActivities.slice(start, end),
+      totalCount: sampleActivities.length,
+    }
+  }
+
+  try {
+    const response = await client.get<MicroCMSListResponse<Activity>>({
+      endpoint: "activities",
+      queries: { orders: "-date", limit, offset },
+    })
+    return {
+      contents: response.contents,
+      totalCount: response.totalCount,
+    }
+  } catch (error) {
+    console.log("[v0] MicroCMS fetch error, using sample data:", error)
+    const start = offset
+    const end = offset + limit
+    return {
+      contents: sampleActivities.slice(start, end),
+      totalCount: sampleActivities.length,
+    }
+  }
+}
+
+// Activity詳細取得
+export async function getActivityBySlug(slug: string): Promise<Activity | null> {
+  if (!client) {
+    return sampleActivities.find((a) => a.slug === slug) || null
+  }
+
+  try {
+    const response = await client.get<MicroCMSListResponse<Activity>>({
+      endpoint: "activities",
+      queries: { filters: `slug[equals]${slug}` },
+    })
+    return response.contents[0] || null
+  } catch (error) {
+    console.log("[v0] MicroCMS fetch error:", error)
+    return sampleActivities.find((a) => a.slug === slug) || null
   }
 }

@@ -113,12 +113,11 @@ export async function POST(request: Request) {
 メールアドレス: ${email}
 会社名・団体名: ${company || "未入力"}
 電話番号: ${phone || "未入力"}
-ご希望のサービス: ${service || "未選択"}
 お問い合わせ内容:
 ${message}
       `,
       html: `
-<h2>新しいお問い合わせがありました</h2>
+<h2>akihirokato.comに新しいお問い合わせがありました</h2>
 <p><strong>名前:</strong> ${name}</p>
 <p><strong>メールアドレス:</strong> ${email}</p>
 <p><strong>会社名・団体名:</strong> ${company || "未入力"}</p>
@@ -129,60 +128,9 @@ ${message}
       `,
     }
 
-    // 自動返信メール
-    const autoReplyMsg = {
-      to: email,
-      from: process.env.FROM_EMAIL!,
-      subject: "【DrawCircle】お問い合わせありがとうございます",
-      text: `
-${name} 様
-
-お問い合わせありがとうございます。
-以下の内容で承りました。
-
-お問い合わせ内容:
-${message}
-
-内容を確認次第、担当者よりご連絡させていただきます。
-通常2営業日以内にご返信いたします。
-
-ご不明な点がございましたら、お気軽にお問い合わせください。
-
---
-DrawCircle
-〒134-0087
-東京都江戸川区清新町1-4-15-910
-メール: info@drawcircle.jp
-      `,
-      html: `
-<h2>お問い合わせありがとうございます</h2>
-<p>${name} 様</p>
-
-<p>お問い合わせありがとうございます。<br>
-以下の内容で承りました。</p>
-
-<p><strong>お問い合わせ内容:</strong><br>
-${message.replace(/\n/g, "<br>")}</p>
-
-<p>内容を確認次第、担当者よりご連絡させていただきます。<br>
-通常2営業日以内にご返信いたします。</p>
-
-<p>ご不明な点がございましたら、お気軽にお問い合わせください。</p>
-
-<hr>
-<p>
-<strong>DrawCircle</strong><br>
-〒134-0087<br>
-東京都江戸川区清新町1-4-15-910<br>
-メール: info@drawcircle.jp
-</p>
-      `,
-    }
-
     // メール送信
     await Promise.all([
       sgMail.send(adminMsg),
-      sgMail.send(autoReplyMsg),
     ])
 
     return NextResponse.json({ success: true })

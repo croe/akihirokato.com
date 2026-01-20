@@ -115,7 +115,7 @@ export default function ContactPage() {
             <Input id="phone" name="phone" type="tel" />
           </div>
 
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="service">{t.service}</Label>
             <Select value={service} onValueChange={setService}>
               <SelectTrigger>
@@ -127,7 +127,7 @@ export default function ContactPage() {
                 <SelectItem value="other">{t.serviceOther}</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
           <div className="space-y-2">
             <Label htmlFor="message">

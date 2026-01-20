@@ -44,10 +44,12 @@ function HistorySection({
   title,
   items,
   yearOnly = false,
+  yearMonthOnly = false,
 }: {
   title: string
   items: HistoryItem[]
   yearOnly?: boolean
+  yearMonthOnly?: boolean
 }) {
   const locale = useLocale()
 
@@ -58,8 +60,13 @@ function HistorySection({
       const date = new Date(item.startDate)
       return `${date.getFullYear()}`
     }
+    if (yearMonthOnly) {
+      return formatDateFromISO(item.startDate)
+    }
     return formatDateRange(item.startDate, item.endDate, locale)
   }
+
+  const widthClass = yearOnly ? "w-16" : yearMonthOnly ? "w-24" : "w-32"
 
   return (
     <div className="space-y-4">
@@ -67,7 +74,7 @@ function HistorySection({
       <ul className="space-y-3">
         {items.map((item) => (
           <li key={item.fieldId} className="flex gap-4">
-            <span className={`text-muted-foreground text-sm shrink-0 ${yearOnly ? "w-16" : "w-32"}`}>
+            <span className={`text-muted-foreground text-sm shrink-0 ${widthClass}`}>
               {formatDisplay(item)}
             </span>
             <div className="flex-1">
@@ -202,7 +209,7 @@ export function AboutContent({ about }: AboutContentProps) {
           )}
 
           {about?.awards && (
-            <HistorySection title={t.awards} items={about.awards} />
+            <HistorySection title={t.awards} items={about.awards} yearMonthOnly />
           )}
 
           {about?.exhibitions && (
@@ -216,6 +223,7 @@ export function AboutContent({ about }: AboutContentProps) {
             <HistorySection
               title={t.grantsAndResidences}
               items={about.grants}
+              yearMonthOnly
             />
           )}
         </div>

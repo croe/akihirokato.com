@@ -2,13 +2,20 @@
 
 import type { Activity } from "@/lib/microcms"
 import { ActivitiesList } from "./activities-list"
+import { Pagination } from "./pagination"
 import { useI18n } from "@/lib/i18n"
 
 type ActivitiesContentProps = {
   activities: Activity[]
+  currentPage: number
+  totalPages: number
 }
 
-export function ActivitiesContent({ activities }: ActivitiesContentProps) {
+export function ActivitiesContent({
+  activities,
+  currentPage,
+  totalPages,
+}: ActivitiesContentProps) {
   const { t } = useI18n()
 
   return (
@@ -19,6 +26,11 @@ export function ActivitiesContent({ activities }: ActivitiesContentProps) {
           <p className="text-muted-foreground text-sm">{t.activitiesSubtitle}</p>
         </section>
         <ActivitiesList activities={activities} />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          basePath="/activities"
+        />
       </div>
     </main>
   )

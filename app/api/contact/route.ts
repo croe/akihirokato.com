@@ -1,8 +1,4 @@
 import { NextResponse } from "next/server"
-import sgMail from "@sendgrid/mail"
-
-// SendGrid APIキーを設定
-sgMail.setApiKey(process.env.SENDGRID_API_KEY!)
 
 // レート制限用のメモリストア（本番環境ではRedisなどを推奨）
 const rateLimitStore = new Map<string, number[]>()
@@ -78,6 +74,18 @@ function checkRateLimit(ip: string): boolean {
 
 export async function POST(request: Request) {
   try {
+    const resendApiKey = process.env.RESEND_API_KEY
+    const adminEmail = process.env.ADMIN_EMAIL
+    const fromEmail = process.env.FROM_EMAIL
+
+    if (!resendApiKey || !adminEmail || !fromEmail) {
+      console.error("Missing required email environment variables")
+      return NextResponse.json(
+        { error: "メール設定が不足しています" },
+        { status: 500 }
+      )
+    }
+
     // IPアドレスを取得
     const ip =
       request.headers.get("x-forwarded-for")?.split(",")[0] ||
@@ -105,14 +113,15 @@ export async function POST(request: Request) {
 
     // 管理者宛のメール
     const adminMsg = {
-      to: process.env.ADMIN_EMAIL!, // 管理者のメールアドレス
-      from: process.env.FROM_EMAIL!, // 送信元メールアドレス
+      from: fromEmail,
+      to: [adminEmail],
       subject: "【お問い合わせ】新しいお問い合わせがありました",
       text: `
 名前: ${name}
 メールアドレス: ${email}
 会社名・団体名: ${company || "未入力"}
 電話番号: ${phone || "未入力"}
+ご希望のサービス: ${service || "未選択"}
 お問い合わせ内容:
 ${message}
       `,
@@ -129,9 +138,23 @@ ${message}
     }
 
     // メール送信
-    await Promise.all([
-      sgMail.send(adminMsg),
-    ])
+    const resendResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(adminMsg),
+    })
+
+    if (!resendResponse.ok) {
+      const errorText = await resendResponse.text()
+      console.error("Resend API error:", errorText)
+      return NextResponse.json(
+        { error: "メールの送信に失敗しました" },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
